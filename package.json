@@ -1,0 +1,23 @@
+{
+  "name": "undefined-dungeon",
+  "version": "1.0.0",
+  "description": "roguelike game",
+  "main": "index.js",
+  "dependencies": {
+    "webpack": "^4.39.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Perevedko/undefined-dungeon.git"
+  },
+  "author": "daily",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Perevedko/undefined-dungeon/issues"
+  },
+  "homepage": "https://github.com/Perevedko/undefined-dungeon#readme"
+}
