@@ -32,7 +32,7 @@ class GameState
 end
 
 get '/' do
-  'hello, sinatra world'
+  send_file '../client/index.html'
 end
 
 get '/games/all' do
