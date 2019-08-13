@@ -11,9 +11,30 @@
 </head>
 
 <body>
-    <canvas></canvas>
+    <div id="app">
+        <canvas id="canvas" ref="canvas" width="600" height="600"></canvas>
+    </div>
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+<script>
+    new Vue({
+        el: "#app",
+        mounted() {
+            var ctx = this.$refs.canvas.getContext("2d");
+            ctx.fillStyle = "green";
+            ctx.fillRect(10, 10, 100, 100);
+
+            var mapArray = [
+                ['X', 'X', 'X', 'X', 'X'],
+                ['X', ' ', ' ', ' ', 'X'],
+                ['X', ' ', 'h', ' ', 'X'],
+                ['X', ' ', ' ', ' ', 'X'],
+                ['X', 'X', 'X', 'X', 'X']
+            ];
+        }
+    })
+</script>
 
 </html>
