@@ -5,30 +5,36 @@ const IMAGES = {
     wall: './assets/wall.png',
     floor: './assets/floor.png'
 };
+
 const IMAGES_PATHS = Object.values(IMAGES);
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const draw = (imageUrl, tileX, tileY) =>
-    requireAsset(imageUrl).then(image =>
-        ctx.drawImage(image, tileX * TILE_SIZE, tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE));
-
-const drawPlayer = ({x, y}) => draw(IMAGES.player, x, y);
-
 let LOADED_ASSETS = {};
+
 const requireAsset = link => new Promise(resolve => {
     if (LOADED_ASSETS.hasOwnProperty(link)) {
-        resolve(LOADED_ASSETS[link])
-    } else {
+        resolve(LOADED_ASSETS[link]);
+    }
+
+    else {
         const image = new Image();
+        
         image.addEventListener('load', () => {
             LOADED_ASSETS[link] = image;
             resolve(image);
         });
+
         image.src = link;
     }
 });
+
+const draw = (imageUrl, tileX, tileY) =>
+    requireAsset(imageUrl).then(image =>
+        ctx.drawImage(image, tileX * TILE_SIZE, tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+
+const drawPlayer = ({ x, y }) => draw(IMAGES.player, x, y);
 
 const symbolToImageMapping = {
     'x': IMAGES.wall,
