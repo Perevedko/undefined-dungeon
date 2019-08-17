@@ -4,8 +4,10 @@ require 'mongoid'
 require 'json/ext'
 require 'date'
 require 'sinatra/contrib'
+require 'yaml'
 
 ROOT = File.expand_path '.'
+
 
 configure do
   Mongoid.load! "#{ROOT}/config/mongoid.yml", :development
@@ -23,8 +25,8 @@ end
 
 
 module Tile
-  WALL = 'X'
-  EMPTY = ' '
+  WALL = 'x'
+  EMPTY = '.'
   HERO = 'h'
 end
 
@@ -93,7 +95,7 @@ class GameState
   end
 
   def self.start_new
-    create status: :new, board: default_game_field, hero_location: default_hero_location
+    create status: :new, board: LEVELS.last[:board], hero_location: LEVELS.last[:hero_location]
   end
 
   def board_with_hero
@@ -138,6 +140,13 @@ class GameState
       false
     end
   end
+end
+
+LEVELS_CONFIG = YAML.load_file "#{ROOT}/levels/info.yml"
+LEVELS = LEVELS_CONFIG.map do |level|
+  board = File.read("#{ROOT}/levels/#{level['file']}").split("\n").map(&:chars)
+  hero_location = Point.new level['hero_location']['x'], level['hero_location']['y']
+  { board: board, hero_location: hero_location }
 end
 
 set :public_folder, "#{ROOT}/client"
