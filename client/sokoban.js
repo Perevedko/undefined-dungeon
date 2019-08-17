@@ -12,38 +12,27 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 function requireAsset(link) { // функция прогрузки изображений
-    let LOADED_ASSETS = {};
-
-    new Promise(resolve => {
-        if (LOADED_ASSETS.hasOwnProperty(link)) { // если изображение прогружено, то
-            resolve(LOADED_ASSETS[link]); // отправляет изоюражение во внешний мир
-        }
-
-        else { // если изображение ещё не загружено, то оно прогружается
-            const image = new Image();
-
-            image.addEventListener('load', () => {
-                LOADED_ASSETS[link] = image;
-                resolve(image); // отправляет изображение во внешний мир
-            });
-
-            image.src = link;
-        }
+    return new Promise(resolve => {
+        const image = new Image();
+        image.addEventListener('load', () => resolve(image));
+        image.src = link;
     });
 }
 
 function draw(imageUrl, tileX, tileY) {
+    console.log(imageUrl, tileX, tileY);
     requireAsset(imageUrl).then(image => // запрашивает изображение из функции requireAsset
         ctx.drawImage(image, tileX * TILE_SIZE, tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE));
 }
 
 function drawPlayer(coords) {
+    console.log(IMAGES);
     const x = coords.x;
     const y = coords.y;
     draw(IMAGES.player, x, y); // рисует персонажа из шаблона draw
 }
 
-const symbolToImageMapping = { // символы массива в изображения
+const charToImageUrl = { // символы массива в изображения
     'x': IMAGES.wall,
     '.': IMAGES.floor,
     'h': IMAGES.floor
@@ -52,25 +41,45 @@ const symbolToImageMapping = { // символы массива в изобра�
 function drawMap(tileMap) { // нихрена не понимаю, почему столько foreach
     tileMap.forEach(function(row, j) {
         row.forEach(function(tile, i) {
-            draw(symbolToImageMapping[tile], i, j);
+            const imageUrl = charToImageUrl[tile];
+            if (imageUrl !== undefined) {
+                draw(imageUrl, i, j)
+            }
         })
     });
 }
 
 function request(url, data) { // функция запроса к апишке 
-    fetch(url, data).then(result => result.json());
+    return fetch(url, data).then(result => result.json());
 }
 
+
+
 function startGame() {
-    Promise.all(IMAGES_PATHS.map(requireAsset)).then(() => {
-        request('/api/game/new').then(gameState => { // запрос к новой игре
-            console.log(gameState);
-            const id = gameState.id;
-            drawMap(gameState.board);
-            drawPlayer(gameState.hero_location);
+    request('/api/game/new').then(gameState => { // запрос к новой игре
+        drawMap(gameState.board);
+        drawPlayer(gameState.hero_location);
+        return gameState.id;
+    }).then(id => {
+        document.addEventListener('keydown', event => {
+            let direction;
+            switch(event.key) {
+                case 'ArrowUp':    direction = 'north'; break;
+                case 'ArrowDown':  direction = 'south'; break;
+                case 'ArrowLeft':  direction = 'west';  break;
+                case 'ArrowRight': direction = 'east';  break;
+                default: break;
+            }
+            if (direction !== undefined) {
+                request(`/api/game/${id}/move/${direction}`).then(result => {
+                    if (result.moved === true) {
+                        drawMap(result.game.board);
+                        drawPlayer(result.game.hero_location);
+                    }
+                });
+            }
         });
     });
-    // 1. Загрузить все ассеты +
     // 2. Отправить GET на /api/game/new, сохранить id +
     // 3. Отрисовать поле +
     // 4. Повесить обработчики кнопок
