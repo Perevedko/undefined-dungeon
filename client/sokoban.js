@@ -39,8 +39,8 @@ const charToImageUrl = { // символы массива в изображен�
 };
 
 function drawMap(tileMap) { // нихрена не понимаю, почему столько foreach
-    tileMap.forEach(function(row, j) {
-        row.forEach(function(tile, i) {
+    tileMap.forEach(function (row, j) {
+        row.forEach(function (tile, i) {
             const imageUrl = charToImageUrl[tile];
             if (imageUrl !== undefined) {
                 draw(imageUrl, i, j)
@@ -53,8 +53,6 @@ function request(url, data) { // функция запроса к апишке
     return fetch(url, data).then(result => result.json());
 }
 
-
-
 function startGame() {
     request('/api/game/new').then(gameState => { // запрос к новой игре
         drawMap(gameState.board);
@@ -63,13 +61,15 @@ function startGame() {
     }).then(id => {
         document.addEventListener('keydown', event => {
             let direction;
-            switch(event.key) {
-                case 'ArrowUp':    direction = 'north'; break;
-                case 'ArrowDown':  direction = 'south'; break;
-                case 'ArrowLeft':  direction = 'west';  break;
-                case 'ArrowRight': direction = 'east';  break;
+
+            switch (event.key) {
+                case 'ArrowUp': direction = 'north'; break;
+                case 'ArrowDown': direction = 'south'; break;
+                case 'ArrowLeft': direction = 'west'; break;
+                case 'ArrowRight': direction = 'east'; break;
                 default: break;
             }
+
             if (direction !== undefined) {
                 request(`/api/game/${id}/move/${direction}`).then(result => {
                     if (result.moved === true) {
