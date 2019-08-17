@@ -5,12 +5,10 @@ require 'json/ext'
 require 'date'
 require 'sinatra/contrib'
 
-SERVER_DIR = File.expand_path File.dirname(__FILE__)
-PROJECT_DIR = File.expand_path '..', SERVER_DIR
-
+ROOT = File.expand_path '.'
 
 configure do
-  Mongoid.load! "#{SERVER_DIR}/config/mongoid.yml", :development
+  Mongoid.load! "#{ROOT}/config/mongoid.yml", :development
 end
 
 module Mongoid
@@ -142,11 +140,13 @@ class GameState
   end
 end
 
+set :public_folder, "#{ROOT}/client"
+
+
 get '/' do
-  send_file "#{SERVER_DIR}/client/index.html"
+  send_file "#{ROOT}/client/index.html"
 end
 
-set :public_folder, "#{SERVER_DIR}/client"
 
 namespace '/api' do
   before do
