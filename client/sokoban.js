@@ -1,68 +1,61 @@
 const TILE_SIZE = 40;
 
-const ASSETS = Object.freeze([
-    './assets/player.png',
-    './assets/wall.png',
-    './assets/floor.png'
-]);
+const IMAGES = {
+    player: './assets/player.png',
+    wall: './assets/wall.png',
+    floor: './assets/floor.png'
+};
+const IMAGES_PATHS = Object.values(IMAGES);
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-function drawPlayer() {
-    //player.y = canvas.height / 2 - 40;    //player position - middle of canvas - 40
-    //player.x = canvas.width / 2 - 40;    //player position - middle of canvas - 40
+const draw = (imageUrl, tileX, tileY) =>
+    requireAsset(imageUrl).then(image =>
+        ctx.drawImage(image, tileX * TILE_SIZE, tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE));
 
-    loadImage("./assets/player.png").then(playerImage => {
-        ctx.drawImage(playerImage, 0, 0, 40, 40);
-    })
-}
+const drawPlayer = ({x, y}) => draw(IMAGES.player, x, y);
 
-function loadImage(url) {
-    return new Promise(resolve => {
+let LOADED_ASSETS = {};
+const requireAsset = link => new Promise(resolve => {
+    if (LOADED_ASSETS.hasOwnProperty(link)) {
+        resolve(LOADED_ASSETS[link])
+    } else {
         const image = new Image();
-
         image.addEventListener('load', () => {
+            LOADED_ASSETS[link] = image;
             resolve(image);
         });
-
-        image.src = url;
-    });
-}
-
-function drawMap() {
-    var mapArray = [
-        ['3', '3', '3', '3', '3'],
-        ['3', '0', '0', '0', '3'],
-        ['3', '0', '0', '0', '3'],
-        ['3', '0', '0', '0', '3'],
-        ['3', '3', '3', '3', '3']
-    ];
-
-    for (let i = 0; i < mapArray.length; i++) {
-        for (let j = 0; j < mapArray[i].length; j++) {
-            if (mapArray[i][j] == 3) {
-                loadImage("./assets/wall.png").then(wallImage => {
-                    ctx.drawImage(wallImage, i * 40, j * 40, 40, 40); // последние 2 цифры - размер изображения в пикселях
-                })
-            }
-
-            if (mapArray[i][j] == 0) {
-                loadImage("./assets/floor.png").then(floorImage => {
-                    ctx.drawImage(floorImage, i * 40, j * 40, 40, 40); // последние 2 цифры - размер изображения в пикселях
-                })
-            }
-        }
+        image.src = link;
     }
-}
+});
 
-drawMap();
-drawPlayer();
+const symbolToImageMapping = {
+    'X': IMAGES.wall,
+    ' ': IMAGES.floor,
+    'h': IMAGES.floor
+};
 
+const drawMap = tileMap =>
+    tileMap.forEach((row, j) => row.forEach((tile, i) => draw(symbolToImageMapping[tile], i, j)));
+
+const request = (url, data) => fetch(url, data).then(result => result.json())
 
 const startGame = () => {
-    // 1. Загрузить все ассеты
-    // 2. Отправить GET на /api/game/new, сохранить id
-    // 3. Отрисовать поле
+    Promise.all(IMAGES_PATHS.map(requireAsset)).then(() => {
+        request('/api/game/new').then(gameState => {
+            console.log(gameState);
+            const id = gameState.id;
+            drawMap(gameState.board);
+            drawPlayer(gameState.hero_location);
+        });
+    });
+    // 1. Загрузить все ассеты +
+    // 2. Отправить GET на /api/game/new, сохранить id +
+    // 3. Отрисовать поле +
     // 4. Повесить обработчики кнопок
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    startGame();
+});
