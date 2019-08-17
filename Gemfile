@@ -12,3 +12,5 @@ gem "mongo", "~> 2.9"
 gem "bson_ext", "~> 1.5"
 
 gem "mongoid", "~> 7.0"
+
+gem "sinatra-contrib", "~> 2.0"
