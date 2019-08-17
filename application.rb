@@ -155,7 +155,7 @@ namespace '/api' do
   end
 
   get '/games' do
-    GameState.all
+    GameState.all.to_json
   end
 
   get '/game/new' do
