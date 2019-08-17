@@ -15,16 +15,16 @@ let LOADED_ASSETS = {};
 
 function requireAsset(link) {
     new Promise(resolve => {
-        if (LOADED_ASSETS.hasOwnProperty(link)) {
-            resolve(LOADED_ASSETS[link]);
+        if (LOADED_ASSETS.hasOwnProperty(link)) { // если изображение прогружено
+            resolve(LOADED_ASSETS[link]); // отправляет изоюражение во внешний мир
         }
 
-        else {
+        else { // если изображение ещё не загружено
             const image = new Image();
 
             image.addEventListener('load', () => {
                 LOADED_ASSETS[link] = image;
-                resolve(image);
+                resolve(image); // отправляет изображение во внешний мир
             });
 
             image.src = link;
