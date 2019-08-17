@@ -154,16 +154,12 @@ namespace '/api' do
     content_type :json
   end
 
-  after do
-    response.body = response.body.to_json
-  end
-
   get '/games' do
     GameState.all
   end
 
   get '/game/new' do
-    GameState.start_new
+    GameState.start_new.to_json
   end
 
   get '/game/:id' do |id|
@@ -175,9 +171,9 @@ namespace '/api' do
     return nil unless game
 
     if game.move direction
-      { moved: true, board: game}
+      { moved: true, board: game }.to_json
     else
-      { moved: false }
+      { moved: false }.to_json
     end
   end
 end
