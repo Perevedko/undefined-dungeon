@@ -58,3 +58,11 @@ function drawMap() {
 
 drawMap();
 drawPlayer();
+
+
+const startGame = () => {
+    // 1. Загрузить все ассеты
+    // 2. Отправить GET на /api/game/new, сохранить id
+    // 3. Отрисовать поле
+    // 4. Повесить обработчики кнопок
+};
