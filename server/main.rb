@@ -35,6 +35,8 @@ get '/' do
   send_file '../client/index.html'
 end
 
+set :public_folder, '../client/'
+
 get '/games/all' do
   GameState.all.to_json
 end

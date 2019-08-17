@@ -5,15 +5,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    
-    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" type="text/css" href="style.css">
     <title>undefined dungeon</title>
 </head>
 
 <body>
-    <canvas></canvas>
+    <canvas id="canvas" width="500" height="500"></canvas>
 </body>
 
-<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script>
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+
+    function drawMap() {
+        var mapArray = [
+            ['3', '3', '3', '3', '3'],
+            ['3', '0', '0', '0', '3'],
+            ['3', '0', '0', '0', '3'],
+            ['3', '0', '0', '0', '3'],
+            ['3', '3', '3', '3', '3']
+        ]
+
+        var wall = new Image();
+        var floor = new Image();
+
+        wall.src = './assets/wall.png';
+
+        wall.onload = function() { // Когда изображение загружено, начинается его прорисовка
+            for (var i = 0; i < mapArray.length; i++) {
+                //console.log(mapArray[i]);
+                for (var j = 0; j < mapArray[i].length; j++) {
+                    if (mapArray[i][j] == 3) {
+                        ctx.drawImage(wall, 0, 0, 40, 40); // последние 2 цифры - размер изображения в пикселях
+                    }
+                }
+            }
+        }
+    }
+
+    drawMap();
+</script>
 
 </html>
