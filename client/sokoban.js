@@ -13,28 +13,35 @@ const ctx = canvas.getContext("2d");
 
 let LOADED_ASSETS = {};
 
-const requireAsset = link => new Promise(resolve => {
-    if (LOADED_ASSETS.hasOwnProperty(link)) {
-        resolve(LOADED_ASSETS[link]);
-    }
+function requireAsset(link) {
+    new Promise(resolve => {
+        if (LOADED_ASSETS.hasOwnProperty(link)) {
+            resolve(LOADED_ASSETS[link]);
+        }
 
-    else {
-        const image = new Image();
-        
-        image.addEventListener('load', () => {
-            LOADED_ASSETS[link] = image;
-            resolve(image);
-        });
+        else {
+            const image = new Image();
 
-        image.src = link;
-    }
-});
+            image.addEventListener('load', () => {
+                LOADED_ASSETS[link] = image;
+                resolve(image);
+            });
 
-const draw = (imageUrl, tileX, tileY) =>
+            image.src = link;
+        }
+    });
+}
+
+function draw(imageUrl, tileX, tileY) {
     requireAsset(imageUrl).then(image =>
         ctx.drawImage(image, tileX * TILE_SIZE, tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE));
+}
 
-const drawPlayer = ({ x, y }) => draw(IMAGES.player, x, y);
+function drawPlayer(coords) {
+    const x = coords.x;
+    const y = coords.y;
+    draw(IMAGES.player, x, y);
+}
 
 const symbolToImageMapping = {
     'x': IMAGES.wall,
@@ -42,12 +49,19 @@ const symbolToImageMapping = {
     'h': IMAGES.floor
 };
 
-const drawMap = tileMap =>
-    tileMap.forEach((row, j) => row.forEach((tile, i) => draw(symbolToImageMapping[tile], i, j)));
+function drawMap(tileMap) {
+    tileMap.forEach((row, j), function () {
+        row.forEach((tile, i), function () {
+            draw(symbolToImageMapping[tile], i, j)
+        });
+    });
+}
 
-const request = (url, data) => fetch(url, data).then(result => result.json());
+function request(url, data) {
+    fetch(url, data).then(result => result.json());
+}
 
-const startGame = () => {
+function startGame() {
     Promise.all(IMAGES_PATHS.map(requireAsset)).then(() => {
         request('/api/game/new').then(gameState => {
             console.log(gameState);
@@ -60,7 +74,7 @@ const startGame = () => {
     // 2. Отправить GET на /api/game/new, сохранить id +
     // 3. Отрисовать поле +
     // 4. Повесить обработчики кнопок
-};
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     startGame();
