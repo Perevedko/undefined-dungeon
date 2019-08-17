@@ -163,7 +163,7 @@ namespace '/api' do
   end
 
   get '/game/:id' do |id|
-    GameState.find(id) rescue nil
+    GameState.find(id).to_json rescue nil
   end
 
   get '/game/:id/move/:direction' do |id, direction|
@@ -171,7 +171,7 @@ namespace '/api' do
     return nil unless game
 
     if game.move direction
-      { moved: true, board: game }.to_json
+      { moved: true, game: game }.to_json
     else
       { moved: false }.to_json
     end
