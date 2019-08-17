@@ -1,0 +1,8 @@
+- file: '1'
+  hero_location:
+    x: 2
+    y: 2
+- file: '2'
+  hero_location:
+    x: 2
+    y: 2
