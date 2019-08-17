@@ -1,5 +1,13 @@
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
+const TILE_SIZE = 40;
+
+const ASSETS = Object.freeze([
+    './assets/player.png',
+    './assets/wall.png',
+    './assets/floor.png'
+]);
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
 function drawPlayer() {
     //player.y = canvas.height / 2 - 40;    //player position - middle of canvas - 40
