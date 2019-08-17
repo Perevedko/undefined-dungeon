@@ -31,15 +31,15 @@ const requireAsset = link => new Promise(resolve => {
 });
 
 const symbolToImageMapping = {
-    'X': IMAGES.wall,
-    ' ': IMAGES.floor,
+    'x': IMAGES.wall,
+    '.': IMAGES.floor,
     'h': IMAGES.floor
 };
 
 const drawMap = tileMap =>
     tileMap.forEach((row, j) => row.forEach((tile, i) => draw(symbolToImageMapping[tile], i, j)));
 
-const request = (url, data) => fetch(url, data).then(result => result.json())
+const request = (url, data) => fetch(url, data).then(result => result.json());
 
 const startGame = () => {
     Promise.all(IMAGES_PATHS.map(requireAsset)).then(() => {
