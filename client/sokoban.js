@@ -57,8 +57,7 @@ function startGame() {
     request('/api/game/new').then(gameState => { // запрос к новой игре
         drawMap(gameState.board);
         drawPlayer(gameState.hero_location);
-        return gameState.id;
-    }).then(id => {
+	const id = gameState.id;	
         document.addEventListener('keydown', event => {
             let direction;
 
