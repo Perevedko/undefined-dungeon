@@ -13,6 +13,12 @@ online multiplayer roguelike game written on vue.js &amp; sinatra.rb
 TODO: write next sections
 
 ---
+### Server pre-requirements 
+`mongodb`
+
+
+---
+
 ### How to run server
 
 ---
