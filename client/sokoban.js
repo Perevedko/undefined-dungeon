@@ -50,10 +50,10 @@ const symbolToImageMapping = { // символы массива в изобра�
 };
 
 function drawMap(tileMap) { // нихрена не понимаю, почему столько foreach
-    tileMap.forEach((row, j), function () { // где мои for, их проще воспринимать
-        row.forEach((tile, i), function () {
+    tileMap.forEach(function(row, j) {
+        row.forEach(function(tile, i) {
             draw(symbolToImageMapping[tile], i, j);
-        });
+        })
     });
 }
 
