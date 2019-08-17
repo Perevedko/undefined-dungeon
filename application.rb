@@ -95,7 +95,7 @@ class GameState
   end
 
   def self.start_new
-    create status: :new, board: LEVELS.last[:board], hero_location: LEVELS.last[:hero_location]
+    create status: :new, board: LEVELS.first[:board], hero_location: LEVELS.first[:hero_location]
   end
 
   def board_with_hero
@@ -122,13 +122,13 @@ class GameState
     dx, dy =
         case direction.to_sym
         when :north
-          [-1, +0]
-        when :south
-          [+1, +0]
-        when :west
           [+0, -1]
-        when :east
+        when :south
           [+0, +1]
+        when :west
+          [-1, +0]
+        when :east
+          [+1, +0]
         else
           [+0, +0]
         end
