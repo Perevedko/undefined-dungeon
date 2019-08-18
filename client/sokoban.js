@@ -20,15 +20,14 @@ function requireAsset(link) { // функция прогрузки изобра�
 }
 
 function draw(imageUrl, tileX, tileY) {
-    console.log(imageUrl, tileX, tileY);
     requireAsset(imageUrl).then(image => // запрашивает изображение из функции requireAsset
         ctx.drawImage(image, tileX * TILE_SIZE, tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE));
 }
 
 function drawPlayer(coords) {
-    console.log(IMAGES);
     const x = coords.x;
     const y = coords.y;
+
     draw(IMAGES.player, x, y); // рисует персонажа из шаблона draw
 }
 
@@ -63,7 +62,7 @@ function startGame() {
             let direction;
 
             switch (event.key) {
-                case 'ArrowUp': direction = 'north'; break;
+                case 'ArrowUp': direction = 'north'; break; // see on https://keycode.info/
                 case 'ArrowDown': direction = 'south'; break;
                 case 'ArrowLeft': direction = 'west'; break;
                 case 'ArrowRight': direction = 'east'; break;
