@@ -1,4 +1,4 @@
-const TILE_SIZE = 40;
+const TILE_SIZE = 40; // px
 
 const IMAGES = {
     player: './assets/player.png',
@@ -8,9 +8,6 @@ const IMAGES = {
 
 const IMAGES_PATHS = Object.values(IMAGES);
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
 function requireAsset(link) { // функция прогрузки изображений
     return new Promise(resolve => {
         const image = new Image();
@@ -19,69 +16,88 @@ function requireAsset(link) { // функция прогрузки изобра�
     });
 }
 
-function draw(imageUrl, tileX, tileY) {
-    console.log(imageUrl, tileX, tileY);
-    requireAsset(imageUrl).then(image => // запрашивает изображение из функции requireAsset
-        ctx.drawImage(image, tileX * TILE_SIZE, tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE));
-}
 
-function drawPlayer(coords) {
-    console.log(IMAGES);
-    const x = coords.x;
-    const y = coords.y;
-    draw(IMAGES.player, x, y); // рисует персонажа из шаблона draw
-}
+class Canvas {
+    static get el() {
+        return document.getElementById('canvas');
+    }
+    static get ctx() {
+        return this.el.getContext('2d');
+    }
+    static get tile_size() {
+        return TILE_SIZE;
+    }
 
-const charToImageUrl = { // символы массива в изображения
-    'x': IMAGES.wall,
-    '.': IMAGES.floor,
-    'h': IMAGES.floor
-};
+    static drawAsset(imageUrl, tileOffsetX, tileOffsetY) {
+        requireAsset(imageUrl).then(image => {
+            const offsetX = tileOffsetX * this.tile_size;
+            const offsetY = tileOffsetY * this.tile_size;
+            const width = this.tile_size;
+            const height = this.tile_size;
+            this.ctx.drawImage(image, offsetX, offsetY, width, height);
+        });
+    }
 
-function drawMap(tileMap) { // нихрена не понимаю, почему столько foreach
-    tileMap.forEach(function (row, j) {
-        row.forEach(function (tile, i) {
-            const imageUrl = charToImageUrl[tile];
-            if (imageUrl !== undefined) {
-                draw(imageUrl, i, j)
-            }
+    static drawCharacter(coords) {
+        const tileX = coords.x;
+        const tileY = coords.y;
+        this.drawAsset(IMAGES.player, tileX, tileY);
+    }
+
+
+    static get charToImageUrl() { // символы массива в изображения
+        return {
+            'x': IMAGES.wall,
+            '.': IMAGES.floor,
+            'h': IMAGES.floor
+        }
+    }
+
+    static drawGameBoard(gameBoardMatrix) {
+        gameBoardMatrix.forEach((row, jIndex) => {
+            row.forEach((cellValue, iIndex) => {
+                if (this.charToImageUrl.hasOwnProperty(cellValue)) {
+                    this.drawAsset(this.charToImageUrl[cellValue], iIndex, jIndex);
+                }
+            })
         })
-    });
+    }
+
+    static drawTheGame(gameState) {
+        this.drawGameBoard(gameState.board);
+        this.drawCharacter(gameState.hero_location);
+    }
 }
 
-function request(url, data) { // функция запроса к апишке 
-    return fetch(url, data).then(result => result.json());
-}
+const fetchJson = (url, data) => fetch(url, data).then(result => result.json());
 
 function startGame() {
-    request('/api/game/new').then(gameState => { // запрос к новой игре
-        drawMap(gameState.board);
-        drawPlayer(gameState.hero_location);
-	const id = gameState.id;	
+    fetchJson('/api/game/new').then(initialGameState => {
+        Canvas.drawTheGame(initialGameState);
+
+        const gameSessionId = initialGameState.id;
+
         document.addEventListener('keydown', event => {
             let direction;
 
             switch (event.key) {
-                case 'ArrowUp': direction = 'north'; break;
-                case 'ArrowDown': direction = 'south'; break;
-                case 'ArrowLeft': direction = 'west'; break;
-                case 'ArrowRight': direction = 'east'; break;
+                case 'ArrowUp':    direction = 'north'; break;
+                case 'ArrowDown':  direction = 'south'; break;
+                case 'ArrowLeft':  direction = 'west';  break;
+                case 'ArrowRight': direction = 'east';  break;
                 default: break;
             }
 
             if (direction !== undefined) {
-                request(`/api/game/${id}/move/${direction}`).then(result => {
-                    if (result.moved === true) {
-                        drawMap(result.game.board);
-                        drawPlayer(result.game.hero_location);
+                event.preventDefault();
+                fetchJson(`/api/game/${gameSessionId}/move/${direction}`).then(answer => {
+                    if (answer.moved) {
+                        Canvas.drawTheGame(answer.game);
                     }
                 });
             }
-        });
+        })
     });
-    // 2. Отправить GET на /api/game/new, сохранить id +
-    // 3. Отрисовать поле +
-    // 4. Повесить обработчики кнопок
 }
 
 document.addEventListener('DOMContentLoaded', () => {
