@@ -1,5 +1,5 @@
 # undefined-dungeon
-online multiplayer roguelike game written on vue.js &amp; sinatra.rb
+online multiplayer sokoban game written on sinatra.rb
 
 ---
 ### Server requirements 
