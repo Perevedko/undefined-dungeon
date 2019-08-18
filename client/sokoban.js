@@ -28,6 +28,10 @@ class Canvas {
         return TILE_SIZE;
     }
 
+    static clear() {
+        this.ctx.clearRect(0, 0, this.el.width, this.el.height);
+    }
+
     static drawAsset(imageUrl, tileOffsetX, tileOffsetY) {
         requireAsset(imageUrl).then(image => {
             const offsetX = tileOffsetX * this.tile_size;
@@ -71,38 +75,37 @@ class Canvas {
 
 const fetchJson = (url, data) => fetch(url, data).then(result => result.json());
 
-function startGame() {
-    fetchJson('/api/game/new').then(initialGameState => {
-        Canvas.drawTheGame(initialGameState);
+let currentGameSessionId;
 
-        const gameSessionId = initialGameState.id;
+const keyDownHandler = event => {
+    let direction;
 
-        document.addEventListener('keydown', event => {
-            let direction;
+    switch (event.key) {
+        case 'ArrowUp':    direction = 'north'; break;
+        case 'ArrowDown':  direction = 'south'; break;
+        case 'ArrowLeft':  direction = 'west';  break;
+        case 'ArrowRight': direction = 'east';  break;
+        default: break;
+    }
 
-            switch (event.key) {
-                case 'ArrowUp':    direction = 'north'; break;
-                case 'ArrowDown':  direction = 'south'; break;
-                case 'ArrowLeft':  direction = 'west';  break;
-                case 'ArrowRight': direction = 'east';  break;
-                default: break;
+    if (direction !== undefined) {
+        event.preventDefault();
+        fetchJson(`/api/game/${currentGameSessionId}/move/${direction}`).then(answer => {
+            if (answer.moved) {
+                Canvas.drawTheGame(answer.game);
             }
+        });
+    }
+}
 
-            if (direction !== undefined) {
-                event.preventDefault();
-                fetchJson(`/api/game/${gameSessionId}/move/${direction}`).then(answer => {
-                    if (answer.moved) {
-                        Canvas.drawTheGame(answer.game);
-                    }
-                });
-            }
-        })
-    });
+const startGame = initialGameState => {
+    currentGameSessionId = initialGameState.id;
+    Canvas.drawTheGame(initialGameState);
+    document.addEventListener('keydown', keyDownHandler);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    startGame();
-    
+    fetchJson('/api/game/new/level/1').then(startGame);    
 
     const levelButtons = document.querySelectorAll('ul#levels-list li button');
 
@@ -112,7 +115,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const button = event.target;
             const selectedLevelId = button.getAttribute('data-level-id');
-            console.log(`Selected level id: ${selectedLevelId}`);
+
+            Canvas.clear();
+            document.removeEventListener('keydown', keyDownHandler);
+            fetchJson(`/api/game/new/level/${selectedLevelId}`).then(startGame);
         });
     });
 });
