@@ -72,6 +72,7 @@ class GameState
   field :status, type: String, default: :new
   field :board, type: Array
   field :hero_location, type: Point
+  field :level_id, type: Integer
 
   def as_json(options={})
     attrs = super(options)
@@ -94,8 +95,11 @@ class GameState
     Point.new 2, 2
   end
 
-  def self.start_new
-    create status: :new, board: LEVELS.last[:board], hero_location: LEVELS.last[:hero_location]
+  def self.start_new(level = LEVELS.first)
+    create(status: :new,
+           board: level[:board],
+           hero_location: LEVELS.last[:hero_location],
+           level_id: level)
   end
 
   def board_with_hero
@@ -141,8 +145,12 @@ end
 LEVELS_CONFIG = YAML.load_file "#{ROOT}/levels/info.yml"
 LEVELS = LEVELS_CONFIG.map do |level|
   board = File.read("#{ROOT}/levels/#{level['file']}").split("\n").map(&:chars)
-  hero_location = Point.new level['hero_location']['x'], level['hero_location']['y']
-  { board: board, hero_location: hero_location }
+  hero_location = Point.new level['hero_location']['y'], level['hero_location']['x']
+  {
+    board: board,
+    hero_location: hero_location,
+    level_id: level['file'].to_i
+  }
 end
 
 set :public_folder, "#{ROOT}/client"
@@ -167,6 +175,15 @@ namespace '/api' do
     GameState.start_new.to_json
   end
 
+  get '/game/new/level/:id' do |id|
+    level = LEVELS.find { |lvl| lvl[:level_id] == id.to_i }
+    if level
+      GameState.start_new(level).to_json
+    else
+      { error: true, message: "Cannot find level with id = #{id}" }
+    end
+  end
+
   get '/game/:id' do |id|
     GameState.find(id).to_json rescue nil
   end
@@ -179,7 +196,6 @@ namespace '/api' do
       response = { moved: true, game: game }.to_json
       pp response
       response
-
     else
       { moved: false }.to_json
     end
