@@ -1,0 +1,9 @@
+li {
+    list-style-type: none;
+}
+   
+ul {
+    display: inline;
+    margin-left: 0;
+    padding-left: 0;
+}
