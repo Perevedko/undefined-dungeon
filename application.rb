@@ -95,44 +95,40 @@ class GameState
   end
 
   def self.start_new
-    create status: :new, board: LEVELS.first[:board], hero_location: LEVELS.first[:hero_location]
+    create status: :new, board: LEVELS.last[:board], hero_location: LEVELS.last[:hero_location]
   end
 
   def board_with_hero
     hero_board = board.deep_dup
-    raise ArgumentError if hero_board[hero_location.x][hero_location.y] != Tile::EMPTY
-    hero_board[hero_location.x][hero_location.y] = 'h'
+    raise ArgumentError if hero_board[hero_location.y][hero_location.x] != Tile::EMPTY
+    hero_board[hero_location.y][hero_location.x] = 'h'
     hero_board
   end
 
   def board_at(*params)
     point =
-        if params.length == 2 && params.all? { |p| p.is_a? Integer }
-          Point.new params.first, params.last
-        elsif params.first.is_a? Point
-          params.first
-        else
-          raise ArgumentError, params
-        end
+      if params.length == 2 && params.all? { |p| p.is_a? Integer }
+        Point.new params.first, params.last
+      elsif params.first.is_a? Point
+        params.first
+      else
+        raise ArgumentError, 'bad params', params
+      end
 
-    self.board[point.x][point.y]
+    self.board[point.y][point.x]
   end
 
   def move(direction)
     dx, dy =
-        case direction.to_sym
-        when :north
-          [+0, -1]
-        when :south
-          [+0, +1]
-        when :west
-          [-1, +0]
-        when :east
-          [+1, +0]
-        else
-          [+0, +0]
-        end
-    target = Point.new hero_location.x + dx, hero_location.y + dy
+      case direction.to_sym
+      when :north then [+0, -1]
+      when :south then [+0, +1]
+      when :west  then [-1, +0]
+      when :east  then [+1, +0]
+      else [+0, +0]
+      end
+
+    target = Point.new self.hero_location.x + dx, self.hero_location.y + dy
 
     if board_at(target) == Tile::EMPTY
       update hero_location: target
@@ -180,7 +176,10 @@ namespace '/api' do
     return nil unless game
 
     if game.move direction
-      { moved: true, game: game }.to_json
+      response = { moved: true, game: game }.to_json
+      pp response
+      response
+
     else
       { moved: false }.to_json
     end
