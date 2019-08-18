@@ -102,4 +102,17 @@ function startGame() {
 
 document.addEventListener('DOMContentLoaded', () => {
     startGame();
+    
+
+    const levelButtons = document.querySelectorAll('ul#levels-list li button');
+
+    levelButtons.forEach(button => {
+        button.addEventListener('click', event => {
+            event.preventDefault();
+
+            const button = event.target;
+            const selectedLevelId = button.getAttribute('data-level-id');
+            console.log(`Selected level id: ${selectedLevelId}`);
+        });
+    });
 });
